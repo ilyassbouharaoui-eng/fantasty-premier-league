@@ -1,12 +1,14 @@
 import pandas as pd
 import statsmodels.api as sm
 import numpy as np
-
 import pickle
+from sklearn.tree import DecisionTreeRegressor
+from sklearn import linear_model
+from sklearn.ensemble import RandomForestRegressor
 
 with open("dico.pkl", "rb") as f:
     dico = pickle.load(f)
-
+#========================================================donnee d'entrainement======================================================
 df_GK_week = pd.read_csv("gk_training.csv")
 df_GK = pd.read_csv("gk_training_year.csv")
 
@@ -45,86 +47,56 @@ X2 = X2[[
 
 
 X = pd.concat([X1,X2],axis=1)
-X = sm.add_constant(X)
 Y = df_GK_week["points"]
-#==============================================lineaire regression=========================================================
+#========================================================linear regression=========================================================
 
-model = sm.OLS(Y,X).fit()
-print(model.summary())
+mod1 = linear_model.LinearRegression()
+mod1.fit(X,Y)
+#============================================================decision tree===========================================================
 
-#==============================================decision tree===============================================================
+mod2 = DecisionTreeRegressor(random_state=0)
+mod2.fit(X,Y)
+#==============================================================random forest=============================================================
 
-X = pd.concat([X1,X2],axis=1)
-X = X.to_numpy()
-Y = Y.to_numpy()
+mod3 = RandomForestRegressor(n_estimators=10)
+mod3.fit(X,Y)
+#==========================================================prediction================================================================
+df_pred_GK = pd.read_csv("X1_GK.csv")
+L =[]
 
-def moyenne_s(L):
-    l=[]
-    for i in range(len(L)-1):
-        s = (L[i]+L[i+1])/2
-        l.append(s)
-    return l    
-
-def split(L,s):
-    l1=[]
-    l2=[]
-    for i in range(len(L)) :
-        if L[i] < s:
-            l1.append(i)
-        else:
-            l2.append(i)    
-    return l1,l2        
-
-
-def erreur(R , Y):
-
-    if len(R) == 0:
-        return np.inf
-
-    y_1 = sum(Y[i] for i in R) / len(R)
-
-    s1 = sum((Y[i] - y_1) ** 2 for i in R)
-
-    return s1 
-
-def divide(x,y):
-    d  = {}
-    for j in range(22):
-        S = moyenne_s(sorted(x[:, j]))
-        for s in S :
-            R1 = split(x[:, j],s)[0]
-            R2 = split(x[:, j],s)[1]
-            err = erreur(R1,y) + erreur(R2,y)
-            d[(j,s)] = err
-    return min(d,key = d.get)        
-
-
-
-def build_tree(X, Y):
-
-    if len(Y) < 5:
-        return {"value": np.mean(Y)}
-
-    j, s = divide(X, Y)
-
-    R1, R2 = split(X[:, j], s)
-
-    left = build_tree(X[R1,:], Y[R1])
-    right = build_tree(X[R2,:], Y[R2])
-
-    return {
-        "feature": j,
-        "threshold": s,
-        "left": left,
-        "right": right
-    }
-
-def predict(tree, x):
-
-    if "value" in tree:
-        return tree["value"]
-
-    if x[tree["feature"]] < tree["threshold"]:
-        return predict(tree["left"], x)
-    else:
-        return predict(tree["right"], x)
+for _,row in df_pred_GK.iterrows():
+    d = {}
+    l= []
+    id = row["id"]
+    x1 = pd.DataFrame([row])[["minutes_5","avg_points_5","avg_influence_5","avg_creativity_5","bps_5","clean_sheets_5","saves_5","goals_conceded_5","penalties_saved_5"]]
+    x1 = x1.rename(columns={
+        "minutes_5" : "minutes_avg"
+    })
+    x2 = df_GK[df_GK["id"] == id][[
+    "minutes",
+    "starts",
+    "chance_next",
+    "influence",
+    "creativity",
+    "threat",
+    "ict",
+    "bps",
+    "cost",
+    "clean_sheets",
+    "goals_conceded",
+    "xGC",
+    "saves"
+    ]]
+    x = pd.concat(
+    [
+     x1.reset_index(drop=True),
+     x2.reset_index(drop=True)],
+    axis=1
+    )
+    d['id'] = id
+    d['pre_linear'] = mod1.predict(x)[0]
+    d['pre_tree'] = mod2.predict(x)[0]
+    d['pre_random_forest'] = mod3.predict(x)[0]
+    L.append(d)    
+    
+pd.DataFrame(L).to_csv("prediction_GK.csv")
