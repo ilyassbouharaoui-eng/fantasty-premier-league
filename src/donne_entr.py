@@ -65,9 +65,9 @@ df_GK = pd.DataFrame(rows_GK)
 df_def = pd.DataFrame(rows_def)
 df_att = pd.DataFrame(rows_att_mid)
 
-df_GK.to_csv("gk_training_year.csv", index=False)
-df_def.to_csv("def_training_year.csv", index=False)
-df_att.to_csv("att_training_year.csv", index=False)
+df_GK.to_csv("../data/gk_training_year.csv", index=False)
+df_def.to_csv("../data/def_training_year.csv", index=False)
+df_att.to_csv("../data/att_training_year.csv", index=False)
 
 
 rows_GK_week = []
@@ -160,9 +160,9 @@ df_GK_week = pd.DataFrame(rows_GK_week)
 df_def_week = pd.DataFrame(rows_def_week)
 df_att_week = pd.DataFrame(rows_att_mid_week)    
 
-df_GK_week.to_csv("gk_training.csv", index=False)
-df_def_week.to_csv("def_training.csv", index=False)
-df_att_week.to_csv("att_training.csv", index=False)
+df_GK_week.to_csv("../data/gk_training.csv", index=False)
+df_def_week.to_csv("../data/def_training.csv", index=False)
+df_att_week.to_csv("../data/att_training.csv", index=False)
 
 with open("dico.pkl", "wb") as f:
     pickle.dump(dico, f)
@@ -241,8 +241,8 @@ for d in data['elements']:
         })  
         X1_att.append(row)
 
-pd.DataFrame(X1_GK).to_csv("X1_GK.csv",index=False)  
-pd.DataFrame(X1_def).to_csv("X1_def.csv",index=False)  
-pd.DataFrame(X1_att).to_csv("X1_att.csv",index=False)  
+pd.DataFrame(X1_GK).to_csv("../data/X1_GK.csv",index=False)  
+pd.DataFrame(X1_def).to_csv("../data/X1_def.csv",index=False)  
+pd.DataFrame(X1_att).to_csv("../data/X1_att.csv",index=False)  
      
 
