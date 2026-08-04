@@ -180,7 +180,6 @@ The **prediction/** directory stores the final prediction results.
 Each CSV contains
 
 - player id
-- player name
 - predicted points
 - player cost
 
