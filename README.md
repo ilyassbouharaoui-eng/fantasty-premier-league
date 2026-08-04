@@ -43,13 +43,9 @@ Fantasy-Premier-League/
 │
 ├── src/
 │   │
-│   ├── dataset.py
+│   ├── donne_entr.py
 │   ├── prediction.py
-│   ├── linear_regression.py
-│   ├── random_forest.py
-│   ├── neural_network.py
-│   └── ...
-│
+|
 ├── data/
 │   │
 │   ├── gk_training.csv
@@ -66,9 +62,9 @@ Fantasy-Premier-League/
 │
 ├── prediction/
 │   │
-│   ├── goalkeeper_predictions.csv
-│   ├── defender_predictions.csv
-│   ├── attacker_predictions.csv
+│   ├── prediction_GK.csv
+│   ├── prediction_att.csv
+│   ├── prediction_def.csv
 │   └── ...
 │
 └── README.md
