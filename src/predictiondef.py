@@ -2,6 +2,9 @@ import pandas as pd
 import pickle
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
+from sklearn.preprocessing import StandardScaler
 
 with open("../data/dico.pkl", "rb") as f:
     dico = pickle.load(f)
@@ -44,15 +47,25 @@ X2 = X2[[
 
 X = pd.concat([X1,X2],axis=1)
 Y = df_def_week["points"]
+
+X,X_test,Y,Y_test = train_test_split(X,Y,test_size=0.2, random_state=42)
 #========================================================linear regression=========================================================
 
 mod1 = linear_model.LinearRegression()
 mod1.fit(X,Y)
-
+print(mod1.score(X_test,Y_test))
 #==============================================================random forest=============================================================
 
 mod2 = RandomForestRegressor(n_estimators=10)
 mod2.fit(X,Y)
+print(mod2.score(X_test,Y_test))
+#=============================================================neural network ========================================================
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X) 
+X_test_scaled = scaler.fit_transform(X_test) 
+mod3 = MLPRegressor(hidden_layer_sizes=(16,),max_iter = 1000)
+mod3.fit(X_scaled,Y) 
+print(mod3.score(X_test_scaled,Y_test))
 #==========================================================prediction================================================================
 df_pred_GK = pd.read_csv("../data/X1_def.csv")
 L =[]
@@ -89,6 +102,8 @@ for _,row in df_pred_GK.iterrows():
     d['cost'] = df_def[df_def["id"] == id]['cost'].iloc[0]
     d['pre_linear'] = mod1.predict(x)[0]
     d['pre_random_forest'] = mod2.predict(x)[0]
+    x = scaler.transform(x)
+    d['neural_network'] = mod3.predict(x)[0]
     L.append(d)    
     
 pd.DataFrame(L).to_csv("../prediction/prediction_def.csv")
