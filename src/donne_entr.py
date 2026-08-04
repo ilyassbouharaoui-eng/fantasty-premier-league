@@ -1,6 +1,5 @@
 import requests
 import pandas as pd
-import pickle
 url = "https://fantasy.premierleague.com/api/bootstrap-static/"
 data = requests.get(url).json()
 
@@ -81,13 +80,10 @@ for d in data["elements"]:
     url_week = f"https://fantasy.premierleague.com/api/element-summary/{id}/" 
     all_histories[id] = requests.get(url_week).json()["history"]
 
-#le dict qu on va definir ici va nous servir dans les donnes de l entrainement voir fichier prediction.py( len(X1) doit etre = len(X2))
-dico = {}
 for d in data['elements']:
     id = d['id'] 
     
     weeks = all_histories[id]
-    dico[id] = len(weeks)
     for i in range(5,len(weeks)):
         point = 0 
         influence = 0
@@ -164,8 +160,6 @@ df_GK_week.to_csv("../data/gk_training.csv", index=False)
 df_def_week.to_csv("../data/def_training.csv", index=False)
 df_att_week.to_csv("../data/att_training.csv", index=False)
 
-with open("dico.pkl", "wb") as f:
-    pickle.dump(dico, f)
 
 #===============================================donne pour la prediction====================================================
 X1_GK = []
